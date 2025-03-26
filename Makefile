@@ -5,7 +5,7 @@ CLI_NAME=argocd
 BIN_NAME=argocd
 
 # When using OSX/Darwin, you might need to enable CGO for local builds
-CGO_FLAG?=0
+CGO_FLAG?=1
 
 GEN_RESOURCES_CLI_NAME=argocd-resources-gen
 
@@ -26,7 +26,7 @@ GOPATH?=$(shell if test -x `which go`; then go env GOPATH; else echo "$(HOME)/go
 GOCACHE?=$(HOME)/.cache/go-build
 
 # Docker command to use
-DOCKER?=docker
+DOCKER?=podman
 ifeq ($(DOCKER),podman)
 PODMAN_ARGS=--userns keep-id
 else
@@ -256,11 +256,11 @@ cli: test-tools-image
 
 .PHONY: cli-local
 cli-local: clean-debug
-	CGO_ENABLED=${CGO_FLAG} GODEBUG="tarinsecurepath=0,zipinsecurepath=0" go build -gcflags="all=-N -l" $(COVERAGE_FLAG) -v -ldflags '${LDFLAGS}' -o ${DIST_DIR}/${CLI_NAME} ./cmd
+	CGO_ENABLED=${CGO_FLAG} GODEBUG="tarinsecurepath=0,zipinsecurepath=0" go build -gcflags="all=-N -l" $(COVERAGE_FLAG) -v -o ${DIST_DIR}/${CLI_NAME} ./cmd
 
 .PHONY: gen-resources-cli-local
 gen-resources-cli-local: clean-debug
-	CGO_ENABLED=${CGO_FLAG} GODEBUG="tarinsecurepath=0,zipinsecurepath=0" go build -v -ldflags '${LDFLAGS}' -o ${DIST_DIR}/${GEN_RESOURCES_CLI_NAME} ./hack/gen-resources/cmd
+	CGO_ENABLED=${CGO_FLAG} GODEBUG="tarinsecurepath=0,zipinsecurepath=0" go build -v -o ${DIST_DIR}/${GEN_RESOURCES_CLI_NAME} ./hack/gen-resources/cmd
 
 .PHONY: release-cli
 release-cli: clean-debug build-ui
@@ -318,7 +318,7 @@ ifeq ($(DEV_IMAGE), true)
 IMAGE_TAG="dev-$(shell git describe --always --dirty)"
 image: build-ui
 	DOCKER_BUILDKIT=1 $(DOCKER) build --platform=$(TARGET_ARCH) -t argocd-base --target argocd-base .
-	CGO_ENABLED=${CGO_FLAG} GOOS=linux GOARCH=amd64 GODEBUG="tarinsecurepath=0,zipinsecurepath=0" go build -v -ldflags '${LDFLAGS}' -o ${DIST_DIR}/argocd ./cmd
+	CGO_ENABLED=${CGO_FLAG} GOOS=linux GOARCH=amd64 GODEBUG="tarinsecurepath=0,zipinsecurepath=0" go build -v -o ${DIST_DIR}/argocd ./cmd
 	ln -sfn ${DIST_DIR}/argocd ${DIST_DIR}/argocd-server
 	ln -sfn ${DIST_DIR}/argocd ${DIST_DIR}/argocd-application-controller
 	ln -sfn ${DIST_DIR}/argocd ${DIST_DIR}/argocd-repo-server
