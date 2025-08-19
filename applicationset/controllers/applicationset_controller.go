@@ -1698,6 +1698,8 @@ func shouldRequeueForApplicationSet(appSetOld, appSetNew *argov1alpha1.Applicati
 	// Requeue if any ApplicationStatus.Status changed for Progressive sync strategy
 	if enableProgressiveSyncs {
 		if !cmp.Equal(appSetOld.Status.ApplicationStatus, appSetNew.Status.ApplicationStatus, cmpopts.EquateEmpty()) {
+			log.Infof("new Appset: %s", appSetNew.Status)
+			log.Info("old Appset: %s", appSetOld.Status)
 			return true
 		}
 	}
