@@ -881,6 +881,9 @@ type ApplicationSetApplicationStatus struct {
 	Step string `json:"step" protobuf:"bytes,5,opt,name=step"`
 	// TargetRevision tracks the desired revisions the Application should be synced to.
 	TargetRevisions []string `json:"targetRevisions" protobuf:"bytes,6,opt,name=targetrevisions"`
+	// ResourceVersion tracks the resourceVersion of the Application when the status was last assessed
+	// This helps detect when progressive sync decisions may be based on stale informer cache data
+	ResourceVersion string `json:"resourceVersion,omitempty" protobuf:"bytes,7,opt,name=resourceVersion"`
 }
 
 // ApplicationSetList contains a list of ApplicationSet

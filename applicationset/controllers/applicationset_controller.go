@@ -1058,6 +1058,15 @@ func (r *ApplicationSetReconciler) buildAppSyncMap(applicationSet argov1alpha1.A
 				syncEnabled = false
 				break
 			}
+
+			// Check for potential cache staleness before making progressive sync decisions
+			if r.isApplicationDataPotentiallyStale(app, appStatus) {
+				// If we detect potential staleness, be conservative and halt progression
+				// This will cause a requeue and another reconciliation attempt with hopefully fresher data
+				syncEnabled = false
+				break
+			}
+
 			syncEnabled = appSyncEnabledForNextStep(&applicationSet, app, appStatus)
 			if !syncEnabled {
 				break
@@ -1201,6 +1210,9 @@ func (r *ApplicationSetReconciler) updateApplicationSetApplicationStatus(ctx con
 			currentAppStatus.Message = "Application resource became Healthy, updating status from Progressing to Healthy."
 			currentAppStatus.Step = strconv.Itoa(getAppStep(currentAppStatus.Application, appStepMap))
 		}
+
+		// Update the ResourceVersion to track the Application state when this status was assessed
+		currentAppStatus.ResourceVersion = app.ResourceVersion
 
 		appStatuses = append(appStatuses, currentAppStatus)
 	}
@@ -1698,8 +1710,8 @@ func shouldRequeueForApplicationSet(appSetOld, appSetNew *argov1alpha1.Applicati
 	// Requeue if any ApplicationStatus.Status changed for Progressive sync strategy
 	if enableProgressiveSyncs {
 		if !cmp.Equal(appSetOld.Status.ApplicationStatus, appSetNew.Status.ApplicationStatus, cmpopts.EquateEmpty()) {
-			log.Infof("new Appset: %s", appSetNew.Status)
-			log.Info("old Appset: %s", appSetOld.Status)
+			log.Infof("new Appset: %v", appSetNew.Status)
+			log.Infof("old Appset: %v", appSetOld.Status)
 			return true
 		}
 	}
@@ -1725,6 +1737,24 @@ func shouldRequeueForApplicationSet(appSetOld, appSetNew *argov1alpha1.Applicati
 		if oldHasRefreshAnnotation && !newHasRefreshAnnotation {
 			return false
 		}
+		return true
+	}
+
+	return false
+}
+
+// isApplicationDataPotentiallyStale checks if the Application data from the informer cache
+// might be stale by comparing the current Application's resourceVersion with the one
+// stored in the ApplicationSet status when the progressive sync decision was last made
+func (r *ApplicationSetReconciler) isApplicationDataPotentiallyStale(app argov1alpha1.Application, appStatus argov1alpha1.ApplicationSetApplicationStatus) bool {
+	// If we don't have a stored resourceVersion, assume it's potentially stale
+	if appStatus.ResourceVersion == "" {
+		return true
+	}
+
+	// If the current Application's resourceVersion differs from the stored one,
+	// the Application has been updated since our last status assessment
+	if app.ResourceVersion != appStatus.ResourceVersion {
 		return true
 	}
 
