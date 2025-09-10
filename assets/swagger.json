@@ -7006,6 +7006,10 @@
           "type": "string",
           "title": "Message contains human-readable message indicating details about the status"
         },
+        "resourceVersion": {
+          "type": "string",
+          "title": "ResourceVersion tracks the resourceVersion of the Application when the status was last assessed\nThis helps detect when progressive sync decisions may be based on stale informer cache data"
+        },
         "status": {
           "type": "string",
           "title": "Status contains the AppSet's perceived status of the managed Application resource: (Waiting, Pending, Progressing, Healthy)"

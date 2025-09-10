@@ -230,6 +230,10 @@ message ApplicationSetApplicationStatus {
 
   // TargetRevision tracks the desired revisions the Application should be synced to.
   repeated string targetrevisions = 6;
+
+  // ResourceVersion tracks the resourceVersion of the Application when the status was last assessed
+  // This helps detect when progressive sync decisions may be based on stale informer cache data
+  optional string resourceVersion = 7;
 }
 
 // ApplicationSetCondition contains details about an applicationset condition, which is usually an error or warning
