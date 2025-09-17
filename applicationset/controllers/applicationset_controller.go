@@ -150,19 +150,6 @@ func (r *ApplicationSetReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 			}
 			logCtx.Debugf("ownerReferences referring %s is deleted from generated applications", appsetName)
 		}
-		if isProgressiveSyncDeletionOrderReversed(&applicationSetInfo) {
-			logCtx.Debugf("DeletionOrder is set as Reverse on %s", appsetName)
-			currentApplications, err := r.getCurrentApplications(ctx, applicationSetInfo)
-			if err != nil {
-				return ctrl.Result{}, err
-			}
-			requeueTime, err := r.performReverseDeletion(ctx, logCtx, applicationSetInfo, currentApplications)
-			if err != nil {
-				return ctrl.Result{}, err
-			} else if requeueTime > 0 {
-				return ctrl.Result{RequeueAfter: requeueTime}, err
-			}
-		}
 		controllerutil.RemoveFinalizer(&applicationSetInfo, argov1alpha1.ResourcesFinalizerName)
 		if err := r.Update(ctx, &applicationSetInfo); err != nil {
 			return ctrl.Result{}, err
@@ -1097,11 +1084,6 @@ func isApplicationWithError(app argov1alpha1.Application) bool {
 		}
 	}
 	return false
-}
-
-func isProgressiveSyncDeletionOrderReversed(appset *argov1alpha1.ApplicationSet) bool {
-	// When progressive sync is enabled + deletionOrder is set to Reverse (case-insensitive)
-	return progressiveSyncsRollingSyncStrategyEnabled(appset) && strings.EqualFold(appset.Spec.Strategy.DeletionOrder, ReverseDeletionOrder)
 }
 
 func getAppStep(appName string, appStepMap map[string]int) int {
