@@ -22954,8 +22954,6 @@ spec:
                 type: object
               strategy:
                 properties:
-                  deletionOrder:
-                    type: string
                   rollingSync:
                     properties:
                       steps:
@@ -23664,6 +23662,8 @@ spec:
                       type: string
                     message:
                       type: string
+                    resourceVersion:
+                      type: string
                     status:
                       type: string
                     step:
@@ -23675,6 +23675,7 @@ spec:
                   required:
                   - application
                   - message
+                  - resourceVersion
                   - status
                   - step
                   - targetRevisions

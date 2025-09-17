@@ -84,9 +84,6 @@ type ApplicationPreservedFields struct {
 type ApplicationSetStrategy struct {
 	Type        string                         `json:"type,omitempty" protobuf:"bytes,1,opt,name=type"`
 	RollingSync *ApplicationSetRolloutStrategy `json:"rollingSync,omitempty" protobuf:"bytes,2,opt,name=rollingSync"`
-	// DeletionOrder allows specifying the order for deleting generated apps when progressive sync is enabled.
-	// accepts values "AllAtOnce" and "Reverse"
-	DeletionOrder string `json:"deletionOrder,omitempty" protobuf:"bytes,3,opt,name=deletionOrder"`
 }
 type ApplicationSetRolloutStrategy struct {
 	Steps []ApplicationSetRolloutStep `json:"steps,omitempty" protobuf:"bytes,1,opt,name=steps"`
@@ -895,6 +892,8 @@ type ApplicationSetApplicationStatus struct {
 	Step string `json:"step" protobuf:"bytes,5,opt,name=step"`
 	// TargetRevision tracks the desired revisions the Application should be synced to.
 	TargetRevisions []string `json:"targetRevisions" protobuf:"bytes,6,opt,name=targetrevisions"`
+	// ResourceVersion traks the resource version of the Application when the ApplicationStatus was last updated
+	ResourceVersion string `json:"resourceVersion" protobuf:"bytes,7,opt,name=resourceVersion"`
 }
 
 // ApplicationSetList contains a list of ApplicationSet

@@ -230,6 +230,9 @@ message ApplicationSetApplicationStatus {
 
   // TargetRevision tracks the desired revisions the Application should be synced to.
   repeated string targetrevisions = 6;
+
+  // ResourceVersion traks the resource version of the Application when the ApplicationStatus was last updated
+  optional string resourceVersion = 7;
 }
 
 // ApplicationSetCondition contains details about an applicationset condition, which is usually an error or warning
@@ -376,10 +379,6 @@ message ApplicationSetStrategy {
   optional string type = 1;
 
   optional ApplicationSetRolloutStrategy rollingSync = 2;
-
-  // DeletionOrder allows specifying the order for deleting generated apps when progressive sync is enabled.
-  // accepts values "AllAtOnce" and "Reverse"
-  optional string deletionOrder = 3;
 }
 
 // ApplicationSetSyncPolicy configures how generated Applications will relate to their
