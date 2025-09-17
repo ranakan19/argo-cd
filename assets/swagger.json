@@ -7075,6 +7075,10 @@
           "type": "string",
           "title": "Message contains human-readable message indicating details about the status"
         },
+        "resourceVersion": {
+          "type": "string",
+          "title": "ResourceVersion traks the resource version of the Application when the ApplicationStatus was last updated"
+        },
         "status": {
           "type": "string",
           "title": "Status contains the AppSet's perceived status of the managed Application resource"

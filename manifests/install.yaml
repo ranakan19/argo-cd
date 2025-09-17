@@ -23664,6 +23664,8 @@ spec:
                       type: string
                     message:
                       type: string
+                    resourceVersion:
+                      type: string
                     status:
                       type: string
                     step:
@@ -23675,6 +23677,7 @@ spec:
                   required:
                   - application
                   - message
+                  - resourceVersion
                   - status
                   - step
                   - targetRevisions
